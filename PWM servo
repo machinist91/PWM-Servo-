@@ -1,0 +1,74 @@
+#include <Adafruit_PWMServoDriver.h> //Servo Driver Library
+#include <SPI.h>
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(); // using the library
+// the next three lines of code you will need to use one of the example sketch to figure out these numbers for your servos
+#define SERVOMIN 128
+#define SERVOMAX 610
+#define SERVO_FREQ 50
+
+int potPin = A0;
+int potPin2 = A1;
+int potPin3 = A2;
+int potPin4 = A3;
+int button = 2;
+int buttonState = HIGH;
+int lastButtonState = HIGH;
+long lastDebounceTime = 0;
+long debounceDelay = 50;
+int val;
+int val2;
+int val3;
+int val4;
+uint8_t servonum = 4;
+
+void setup() {
+  
+  Serial.begin(9600);
+  pinMode(button,INPUT);
+  digitalWrite(button,HIGH);
+
+
+  pwm.begin();                // begin the servo library
+  pwm.setPWMFreq(SERVO_FREQ);
+}
+
+void loop() {
+  int reading = digitalRead(button);
+  
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+  
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      
+      if (buttonState == LOW) {
+        // Button is pressed
+      } else {
+        // Button is released
+      }
+    }
+  }
+  
+  lastButtonState = reading;
+
+  val = analogRead(potPin);                  // Mapping the values for that val variables
+  val = map(val,0,1023,SERVOMIN,SERVOMAX);
+  val2 = analogRead(potPin2);
+  val2 = map(val2,0,1023,SERVOMIN,SERVOMAX);
+  val3 = analogRead(potPin3);
+  val3 = map(val3,0,1023,SERVOMIN,SERVOMAX);
+  val4 = analogRead(potPin4);
+  val4 = map(val4,0,1023,SERVOMIN,SERVOMAX);
+  pwm.setPWM(0,0,val);
+  pwm.setPWM(1,0,val2);
+  pwm.setPWM(2,0,val3);
+  pwm.setPWM(3,0,val4);
+  if (digitalRead(button)==LOW) {
+    pwm.setPWM(4,0,SERVOMIN);
+  }
+  else {
+    pwm.setPWM(4,0,SERVOMAX);
+  }
+}
